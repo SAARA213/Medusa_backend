@@ -1,21 +1,33 @@
-# Use the official Node.js image as a base
-FROM node:18
+# Stage 1: Build the application
+FROM node:16-alpine AS build
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# Install dependencies
+
+# Copy package.json and package-lock.json
 COPY package*.json ./
+
+# Install dependencies
 RUN npm install
 
-# Copy the rest of the application code
+# Copy the rest of the application
 COPY . .
 
-# Build the Medusa application
-RUN npm run build
+# Stage 2: Run the application
+FROM node:16-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install Medusa CLI globally again
+RUN npm install -g @medusajs/medusa-cli
+
+# Copy the built application from the build stage
+COPY --from=build /app .
 
 # Expose the port the app runs on
-EXPOSE 7001
+EXPOSE 9000
 
-# Start the Medusa application
-CMD ["npm", "start"]
+# Run migrations and then start the application
+CMD medusa migrations run && npm run start
