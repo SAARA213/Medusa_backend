@@ -30,4 +30,5 @@ COPY --from=build /app .
 EXPOSE 7001
 
 # Run migrations and then start the application
-CMD medusa migrations run && npm run start
+CMD ["sh", "-c", "medusa migrations run && npm run start"]
+
