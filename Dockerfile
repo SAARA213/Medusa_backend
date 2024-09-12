@@ -27,7 +27,7 @@ RUN npm install -g @medusajs/medusa-cli
 COPY --from=build /app .
 
 # Expose the port the app runs on
-EXPOSE 9000
+EXPOSE 7001
 
 # Run migrations and then start the application
 CMD medusa migrations run && npm run start
