@@ -1,29 +1,31 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: supersecret
+      POSTGRES_DB: medusa-db
+    volumes:
+      - medusa-data:/var/lib/postgresql/data
+    networks:
+      - medusa-network
+
   medusa:
     build: .
     ports:
       - "7001:7001"
     environment:
-      DATABASE_TYPE: postgres
-      DATABASE_URL: postgres://postgres:supersecret@db:5432/medusa_db
-      MEDUSA_PROJECT_DIR: /app
+      DATABASE_URL: postgres://postgres:supersecret@db:5432/medusa-db
     depends_on:
       - db
-    volumes:
-      - .:/app
-
-  db:
-    image: postgres:13
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: supersecret
-      POSTGRES_DB: medusa_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - medusa-network
+    command: ["sh", "-c", "medusa migrations run && npm run start"]
 
 volumes:
-  postgres_data:
+  medusa-data:
+
+networks:
+  medusa-network:
